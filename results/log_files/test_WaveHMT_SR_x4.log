@@ -1,0 +1,268 @@
+2025-06-13 20:00:09,803 INFO: 
+  name: test_WaveHMT_SR_x4
+  model_type: WaveHMTModel
+  scale: 4
+  num_gpu: 2
+  manual_seed: 10
+  datasets:[
+    test_1:[
+      name: AID900
+      type: PairedImageDataset
+      dataroot_gt: /dataset/AID/test/test900/HR
+      dataroot_lq: /dataset/AID/test/test900/LR_X4
+      io_backend:[
+        type: disk
+      ]
+      phase: test
+      scale: 4
+    ]
+    test_2:[
+      name: DIOR1000
+      type: PairedImageDataset
+      dataroot_gt: /dataset/DIOR/test1000/GT512_png
+      dataroot_lq: /dataset/DIOR/test1000/LR
+      io_backend:[
+        type: disk
+      ]
+      phase: test
+      scale: 4
+    ]
+    test_3:[
+      name: DOTA900
+      type: PairedImageDataset
+      dataroot_gt: /dataset/DOTA1.0/test900/HR_512
+      dataroot_lq: /dataset/DOTA1.0/test900/LR_matlab
+      io_backend:[
+        type: disk
+      ]
+      phase: test
+      scale: 4
+    ]
+    test_4:[
+      name: UCM1050
+      type: PairedImageDataset
+      dataroot_gt: /dataset/UCM/test1050/HR_256_png
+      dataroot_lq: /dataset/UCM/test1050/LR_x4_png
+      io_backend:[
+        type: disk
+      ]
+      phase: test
+      scale: 4
+    ]
+    test_5:[
+      name: RSSCN1050
+      type: PairedImageDataset
+      dataroot_gt: /dataset/RSSCN7/test1050/HR_all_png
+      dataroot_lq: /dataset/RSSCN7/test1050/LR_x4_all_png
+      io_backend:[
+        type: disk
+      ]
+      phase: test
+      scale: 4
+    ]
+    test_6:[
+      name: NWPU900
+      type: PairedImageDataset
+      dataroot_gt: /dataset/NWPU-RESISC45/test900/HR_all_png
+      dataroot_lq: /dataset/NWPU-RESISC45/test900/LR_x4_all_png
+      io_backend:[
+        type: disk
+      ]
+      phase: test
+      scale: 4
+    ]
+  ]
+  network_g:[
+    type: WaveHMT
+    upscale: 4
+    in_chans: 3
+    img_size: 64
+    img_range: 1.0
+    embed_dim: 180
+    d_state: 16
+    depths: [4, 4, 4, 4, 4, 4]
+    num_heads: [6, 6, 6, 6, 6, 6]
+    window_size: 16
+    inner_rank: 64
+    num_tokens: 128
+    convffn_kernel_size: 5
+    mlp_ratio: 2.0
+    upsampler: pixelshuffle
+    resi_connection: 1conv
+  ]
+  path:[
+    pretrain_network_g: /models/net_g_500000.pth
+    strict_load_g: True
+    results_root:  /results/test_WaveHMT_SR_x4
+    log:  /results/test_WaveHMT_2_SR_x4
+    visualization:  /results/test_WaveHMT_SR_x4/visualization
+  ]
+  val:[
+    save_img: True
+    suffix: None
+    metrics:[
+      psnr:[
+        type: calculate_psnr
+        crop_border: 4
+        test_y_channel: True
+      ]
+      ssim:[
+        type: calculate_ssim
+        crop_border: 4
+        test_y_channel: True
+      ]
+      niqe:[
+        type: calculate_niqe
+        crop_border: 4
+      ]
+    ]
+  ]
+  dist: False
+  rank: 0
+  world_size: 1
+  auto_resume: False
+  is_train: False
+
+2025-06-13 20:00:09,844 INFO: Dataset [PairedImageDataset] - AID900 is built.
+2025-06-13 20:00:09,845 INFO: Number of test images in AID900: 900
+2025-06-13 20:00:09,890 INFO: Dataset [PairedImageDataset] - DIOR1000m is built.
+2025-06-13 20:00:09,890 INFO: Number of test images in DIOR1000m: 1000
+2025-06-13 20:00:09,942 INFO: Dataset [PairedImageDataset] - DOTA900 is built.
+2025-06-13 20:00:09,942 INFO: Number of test images in DOTA900: 900
+2025-06-13 20:00:09,981 INFO: Dataset [PairedImageDataset] - UCM1050 is built.
+2025-06-13 20:00:09,981 INFO: Number of test images in UCM1050: 1050
+2025-06-13 20:00:10,019 INFO: Dataset [PairedImageDataset] - RSSCN1050 is built.
+2025-06-13 20:00:10,019 INFO: Number of test images in RSSCN1050: 1050
+2025-06-13 20:00:10,050 INFO: Dataset [PairedImageDataset] - NWPU900_3 is built.
+2025-06-13 20:00:10,050 INFO: Number of test images in NWPU900: 900
+2025-06-13 20:00:10,756 INFO: Network [WaveHMT] is created.
+2025-06-13 20:00:13,031 INFO: Network: DataParallel - WaveHMT, with parameters: 16,226,967
+2025-06-13 20:00:13,032 INFO: WaveHMT(
+  (conv_first): Conv2d(3, 180, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (patch_embed): PatchEmbed(
+    (norm): LayerNorm((180,), eps=1e-05, elementwise_affine=True)
+  )
+  (patch_unembed): PatchUnEmbed()
+  (layers): ModuleList(
+    (0-5): 6 x MTMixer(
+      (patch_embed): PatchEmbed()
+      (patch_unembed): PatchUnEmbed()
+      (residual_group): BasicBlock(
+        dim=180, input_resolution=(64, 64), depth=4
+        (layers): ModuleList(
+          (0-3): 4 x MTB(
+            (softmax): Softmax(dim=-1)
+            (lrelu): LeakyReLU(negative_slope=0.01)
+            (sigmoid): Sigmoid()
+            (norm1): LayerNorm((180,), eps=1e-05, elementwise_affine=True)
+            (norm2): LayerNorm((180,), eps=1e-05, elementwise_affine=True)
+            (norm3): LayerNorm((180,), eps=1e-05, elementwise_affine=True)
+            (norm4): LayerNorm((180,), eps=1e-05, elementwise_affine=True)
+            (wqkv): Linear(in_features=180, out_features=540, bias=True)
+            (win_mhsa): WindowAttention(
+              dim=180, window_size=(16, 16), num_heads=6, qkv_bias=True
+              (proj): Linear(in_features=180, out_features=180, bias=True)
+              (softmax): Softmax(dim=-1)
+            )
+            (Mamba): SMamba(
+              (in_proj): Linear(in_features=180, out_features=180, bias=False)
+              (x_proj): Linear(in_features=90, out_features=44, bias=False)
+              (dt_proj): Linear(in_features=12, out_features=90, bias=True)
+              (out_proj): Linear(in_features=180, out_features=180, bias=False)
+              (conv1d_x): Conv1d(90, 90, kernel_size=(3,), stride=(1,), groups=90, bias=False)
+              (conv1d_z): Conv1d(90, 90, kernel_size=(3,), stride=(1,), groups=90, bias=False)
+              (getc): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16)
+              (c_adapter): Conv2d(16, 90, kernel_size=(1, 1), stride=(1, 1))
+            )
+            (Mamba): WMamba(
+              (in_proj): Linear(in_features=180, out_features=180, bias=False)
+              (x_proj): Linear(in_features=180, out_features=44, bias=False)
+              (dt_proj): Linear(in_features=12, out_features=180, bias=True)
+              (out_proj): Linear(in_features=180, out_features=180, bias=False)
+              (conv1d_x): Conv1d(180, 180, kernel_size=(3,), stride=(1,), groups=180, bias=False)
+              (conv1d_z): Conv1d(540, 540, kernel_size=(3,), stride=(1,), groups=540, bias=False)
+              (getc): Conv2d(16, 16, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1), groups=16)
+              (c_adapter): Conv2d(16, 180, kernel_size=(1, 1), stride=(1, 1))
+              (dwt): DWT()
+              (idwt): IWT()
+            )
+            (fusion): WeightedFusion()
+            (convffn1): ConvFFN(
+              (fc1): Linear(in_features=180, out_features=360, bias=True)
+              (act): GELU(approximate='none')
+              (dwconv): dwconv(
+                (depthwise_conv): Sequential(
+                  (0): Conv2d(360, 360, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=360)
+                  (1): GELU(approximate='none')
+                )
+              )
+              (fc2): Linear(in_features=360, out_features=180, bias=True)
+            )
+            (convffn2): ConvFFN(
+              (fc1): Linear(in_features=180, out_features=360, bias=True)
+              (act): GELU(approximate='none')
+              (dwconv): dwconv(
+                (depthwise_conv): Sequential(
+                  (0): Conv2d(360, 360, kernel_size=(5, 5), stride=(1, 1), padding=(2, 2), groups=360)
+                  (1): GELU(approximate='none')
+                )
+              )
+              (fc2): Linear(in_features=360, out_features=180, bias=True)
+            )
+          )
+        )
+      )
+      (conv): Conv2d(180, 180, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    )
+  )
+  (norm): LayerNorm((180,), eps=1e-05, elementwise_affine=True)
+  (conv_after_body): Conv2d(180, 180, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+  (conv_before_upsample): Sequential(
+    (0): Conv2d(180, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (1): LeakyReLU(negative_slope=0.01, inplace=True)
+  )
+  (upsample): Upsample(
+    (0): Conv2d(64, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (1): PixelShuffle(upscale_factor=2)
+    (2): Conv2d(64, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+    (3): PixelShuffle(upscale_factor=2)
+  )
+  (conv_last): Conv2d(64, 3, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
+)
+2025-06-13 20:00:13,124 INFO: Loading WaveHMT_model from /models/net_g_500000.pth, with param key: [params].
+2025-06-13 20:00:13,323 INFO: Model [WaveHMTModel] is created.
+2025-06-13 20:00:13,323 INFO: Testing AID900...
+2025-06-13 20:15:59,580 INFO: Validation AID900
+	 # psnr: 31.3861	Best: 31.3861 @ test_WaveHMT_SR_x4 iter
+	 # ssim: 0.8251	Best: 0.8251 @ test_WaveHMT_SR_x4 iter
+	 
+2025-06-13 20:15:59,581 INFO: Testing DIOR1000m...
+2025-06-13 20:28:36,247 INFO: Validation DIOR1000m
+	 # psnr: 30.9482	Best: 30.9482 @ test_WaveHMT_SR_x4 iter
+	 # ssim: 0.8183	Best: 0.8183 @ test_WaveHMT_SR_x4 iter
+
+
+2025-06-13 20:28:36,252 INFO: Testing DOTA900...
+2025-06-13 20:39:46,414 INFO: Validation DOTA900
+	 # psnr: 34.6367	Best: 34.6367 @ test_WaveHMT_SR_x4 iter
+	 # ssim: 0.8673	Best: 0.8673 @ test_WaveHMT_SR_x4 iter
+
+
+2025-06-13 20:39:46,414 INFO: Testing UCM1050...
+2025-06-13 20:45:37,255 INFO: Validation UCM1050
+	 # psnr: 29.6078	Best: 29.6078 @ test_WaveHMT_SR_x4 iter
+	 # ssim: 0.8026	Best: 0.8026 @ test_WaveHMT_SR_x4 iter
+
+
+2025-06-13 20:45:37,255 INFO: Testing RSSCN1050...
+2025-06-13 20:55:22,460 INFO: Validation RSSCN1050
+	 # psnr: 29.4476	Best: 29.4476 @ test_WaveHMT_SR_x4 iter
+	 # ssim: 0.7557	Best: 0.7557 @ test_WaveHMT_SR_x4 iter
+
+
+2025-06-13 20:55:22,460 INFO: Testing NWPU900_3...
+2025-06-13 21:00:28,540 INFO: Validation NWPU900_3
+	 # psnr: 29.5691	Best: 29.5691 @ test_WaveHMT_SR_x4 iter
+	 # ssim: 0.7862	Best: 0.7862 @ test_WaveHMT_SR_x4 iter
+
+
