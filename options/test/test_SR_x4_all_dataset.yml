@@ -1,0 +1,96 @@
+# general settings
+name: test_WaveHMT_SR_x4
+model_type: MambaIRv2Model
+scale: 4
+num_gpu: 2
+manual_seed: 10
+
+datasets:
+  test_1:  # the 1st test dataset
+    name: AID900
+    type: PairedImageDataset
+    dataroot_gt: "/dataset/AID/test/test900/HR"
+    dataroot_lq: "/dataset/AID/test/test900/LR_X4"
+    io_backend:
+      type: disk
+
+  test_2:  # the 2nd test dataset
+    name: DIOR1000m
+    type: PairedImageDataset
+    dataroot_gt: "/dataset/DIOR/test1000/GT512_png"
+    dataroot_lq: "/dataset/DIOR/test1000/LR"
+    #filename_tmpl: '{}x4'
+    io_backend:
+      type: disk
+
+  test_3:  # the 3rd test dataset
+    name: DOTA900
+    type: PairedImageDataset
+    dataroot_gt: "/dataset/DOTA1.0/test900/HR_512"
+    dataroot_lq: "/dataset/DOTA1.0/test900/LR_matlab"
+    #filename_tmpl: '{}x4'
+    io_backend:
+      type: disk
+
+  test_4:  # the 4th test dataset
+    name: UCM1050
+    type: PairedImageDataset
+    dataroot_gt: "/dataset/UCM/test1050/HR_256_png"
+    dataroot_lq: "/dataset/UCM/test1050/LR_x4_png"
+    io_backend:
+      type: disk
+
+  test_5:  # the 5th test dataset
+    name: RSSCN1050
+    type: PairedImageDataset
+    dataroot_gt: "/dataset/RSSCN7/test1050/HR_all_png"
+    dataroot_lq: "/dataset/RSSCN7/test1050/LR_x4_all_png"
+    io_backend:
+      type: disk
+
+  test_6: # the 6th test dataset
+    name: NWPU900_3
+    type: PairedImageDataset
+    dataroot_gt: "/dataset/NWPU-RESISC45/test900/HR_all_png"
+    dataroot_lq: "/dataset/NWPU-RESISC45/test900/LR_x4_all_png"
+    io_backend:
+      type: disk
+
+#network structures
+network_g:
+  type: WaveHMT
+  upscale: 4
+  in_chans: 3
+  img_size: 64
+  img_range: 1.
+  embed_dim: 180
+  d_state: 16
+  depths: [4, 4, 4, 4, 4, 4]
+  num_heads: [ 6, 6, 6, 6, 6, 6 ]
+  window_size: 16
+  inner_rank: 64
+  num_tokens: 128
+  convffn_kernel_size: 5
+  mlp_ratio: 2.
+  upsampler: 'pixelshuffle'
+  resi_connection: '1conv'
+
+# path
+path:
+  pretrain_network_g: /experiments/train_WaveHMT_SR_x4/models/net_g_500000.pth
+  strict_load_g: true
+
+# validation settings
+val:
+  save_img: True
+  suffix: ~  # add suffix to saved images, if None, use exp name
+
+  metrics:
+    psnr: # metric name, can be arbitrary
+      type: calculate_psnr
+      crop_border: 4
+      test_y_channel: true
+    ssim:
+      type: calculate_ssim
+      crop_border: 4
+      test_y_channel: true
